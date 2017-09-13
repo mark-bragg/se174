@@ -33,9 +33,10 @@ class DBHelper {
 		$this->getDB()->close();
 	}
 
-	public function registerUser($name='', $uname='', $pword='', $email='')
+	public function registerUser($name='', $uname='', $pword='pword YO!', $email='')
 	{
 		$sqlAddUser = "INSERT INTO user (name, username, password, email) VALUES ('{$name}', '{$uname}', '{$pword}', '{$email}')";
+		echo "SQLADDUSER:   {$sqlAddUser}";
 		if ($this->performQuery($sqlAddUser) === TRUE) {
 	    	echo "New record created successfully";
 		} else {
@@ -44,13 +45,29 @@ class DBHelper {
 		$this->closeConnection();
 	}
 
-	public function userAuthentication($uname='', $pword='')
+	public function userAuthentication($uname, $pword)
 	{
-		$sqlSelectUser = "SELECT username, password FROM user";
-		$result = $this->performQuery("$sqlSelectUser");
-		$this->closeConnection();
+		$sql="SELECT username,password FROM user";
+		$toReturn = false;
 
-		return $result->num_rows > 0;
+		if ($result=mysqli_query($this->getDB(),$sql))
+		{
+		  	while ($obj=mysqli_fetch_object($result))
+		    {
+		    	printf("\n\nusername: %s \n passwords: ---%s (%s)\n\n\n",$obj->username,$pword,$obj->password);
+
+		    	if ($toReturn = password_verify($pword, $obj->password)) {
+		    		return $toReturn;
+		    	}
+		    }
+		  	// Free result set
+		  	mysqli_free_result($result);
+		}
+
+		mysqli_close($this->getDB());
+
+		
+		return $toReturn;
 	}
 
 }

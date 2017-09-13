@@ -1,33 +1,38 @@
+<div>
 <?php 
 echo "in login controller";
 ##############LOGIN###################
 	include('../../connection.php');
-	echo 'what the heck';
+
 	$dbHelper = DBHelper::getDBHelperInstance();
 
 	$username = trim(isset($_POST['username']) ? $_POST['username'] : '');
 	$password = trim(isset($_POST['password']) ? $_POST['password'] : '');
 	$error = trim(isset($GET['error']) ? $_GET['error'] : '');
-	echo "where am i";
+
 	if (!empty($username) || !empty($password)) {
-		echo "inside first if";
+		echo "begin authentication";
 		if ($dbHelper->userAuthentication($username, $password)) {
-			echo "inside second if";
+
+			if (session_status() == PHP_SESSION_NONE) {
+				session_name("se174");
+			    session_start();
+			}
 			$_SESSION['Authenticated'] = true;
+			echo "authentication successful {$_SESSION['Authenticated']}";
 			$_SESSION['Expires'] = time() + 3600;
 			$_SESSION['username'] = $username;
-
-			// DIRECT HOME
-			header('Location: ../home/homeView.php');
-			exit();
+			
 		} else {
 			$error = 'Invalid username-password combination';
+			echo "authentication failed \nERROR: {$error}";
 		}
-	} else {
-		// DIRECT HOME
-		header('Location: ../../index.php');
-		exit();
 	}
 
+	// DIRECT BACK TO ROOT
+	header('Location: ../../index.php');
+	exit();
 
- ?>
+
+ ?>	
+</div>
